@@ -1,18 +1,16 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
 import { Menu, X, BookOpen } from "lucide-react";
 import uhcfLogo from "@/assets/uhcf-logo.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const location = useLocation();
 
   const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "About", href: "/about" },
-    { name: "Services", href: "/services" },
-    { name: "Media", href: "/media" },
-    { name: "Contact", href: "/contact" },
+    { name: "Home", href: "#home" },
+    { name: "About", href: "#about" },
+    { name: "Services", href: "#services" },
+    { name: "Media", href: "#media" },
+    { name: "Contact", href: "#contact" },
   ];
 
   return (
@@ -20,20 +18,16 @@ const Header = () => {
       <nav className="container-custom mx-auto px-4 md:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3">
+          <a href="#home" className="flex items-center gap-3">
             <img src={uhcfLogo} alt="UHCF Logo" className="h-14 w-auto" />
-          </Link>
+          </a>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.href}
-                className={`nav-link py-2 ${location.pathname === link.href ? "text-primary" : ""}`}
-              >
+              <a key={link.name} href={link.href} className="nav-link py-2">
                 {link.name}
-              </Link>
+              </a>
             ))}
             <a
               href="https://www.bible.com/"
@@ -61,14 +55,14 @@ const Header = () => {
           <div className="md:hidden absolute top-20 left-0 right-0 bg-card shadow-card animate-slide-up">
             <div className="flex flex-col p-6 gap-4">
               {navLinks.map((link) => (
-                <Link
+                <a
                   key={link.name}
-                  to={link.href}
-                  className={`nav-link py-3 text-lg border-b border-border/50 ${location.pathname === link.href ? "text-primary" : ""}`}
+                  href={link.href}
+                  className="nav-link py-3 text-lg border-b border-border/50"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {link.name}
-                </Link>
+                </a>
               ))}
               <a
                 href="https://www.bible.com/"
