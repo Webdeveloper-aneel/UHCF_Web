@@ -1,13 +1,14 @@
+import { Link } from "react-router-dom";
 import { Facebook, Youtube, Mail, Heart, BookOpen } from "lucide-react";
 import uhcfLogo from "@/assets/uhcf-logo.png";
 
 const Footer = () => {
   const quickLinks = [
-    { name: "Home", href: "#home" },
-    { name: "About", href: "#about" },
-    { name: "Services", href: "#services" },
-    { name: "Media", href: "#media" },
-    { name: "Contact", href: "#contact" },
+    { name: "Home", href: "/" },
+    { name: "About", href: "/about" },
+    { name: "Services", href: "/services" },
+    { name: "Media", href: "/media" },
+    { name: "Contact", href: "/contact" },
   ];
 
   const socialLinks = [
@@ -64,12 +65,12 @@ const Footer = () => {
             <ul className="space-y-3">
               {quickLinks.map((link) => (
                 <li key={link.name}>
-                  <a
-                    href={link.href}
+                  <Link
+                    to={link.href}
                     className="text-primary-foreground/70 hover:text-accent transition-colors duration-300"
                   >
                     {link.name}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
