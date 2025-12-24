@@ -1,5 +1,7 @@
-import { ChevronDown, Users, Heart, Music, Globe, BookOpen, Calendar, MapPin, Clock } from "lucide-react";
+import { Users, Heart, Music, Globe, BookOpen, Calendar, MapPin, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
+import HeroCarousel from "@/components/HeroCarousel";
+import LatestVideos from "@/components/LatestVideos";
 
 const HomePage = () => {
   const features = [
@@ -49,22 +51,9 @@ const HomePage = () => {
   return (
     <>
       {/* Hero Section */}
-      <section
-        className="relative min-h-screen flex items-center justify-center overflow-hidden"
-        style={{ background: "var(--gradient-hero)" }}
-      >
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-accent/10 rounded-full blur-3xl animate-float" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary-foreground/5 rounded-full blur-3xl animate-float delay-200" />
-          <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-gold/10 rounded-full blur-3xl animate-pulse-slow" />
-        </div>
-
-        {/* Decorative Cross Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-1/4 right-1/4 text-[200px] text-primary-foreground">✝</div>
-          <div className="absolute bottom-1/3 left-1/5 text-[150px] text-primary-foreground">✝</div>
-        </div>
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Carousel Background */}
+        <HeroCarousel />
 
         {/* Content */}
         <div className="relative z-10 container-custom mx-auto px-4 text-center text-primary-foreground">
@@ -100,15 +89,6 @@ const HomePage = () => {
               Learn More
             </Link>
           </div>
-
-          {/* Scroll Indicator */}
-          <a
-            href="#features"
-            className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-            aria-label="Scroll down"
-          >
-            <ChevronDown size={32} />
-          </a>
         </div>
       </section>
 
@@ -210,6 +190,9 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      {/* Latest Videos Section */}
+      <LatestVideos />
 
       {/* CTA Section */}
       <section className="section-padding bg-background">
