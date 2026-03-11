@@ -110,7 +110,7 @@ const ServicesPage = () => {
             </div>
             <div className="w-px h-8 bg-border hidden sm:block" />
             <a
-              href="https://maps.google.com"
+              href="https://maps.app.goo.gl/qPNRDNtaUbo7Ttyn8"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-gold text-sm"
@@ -296,7 +296,7 @@ const ServicesPage = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="https://maps.google.com"
+              href="https://maps.app.goo.gl/qPNRDNtaUbo7Ttyn8"
               target="_blank"
               rel="noopener noreferrer"
               className="btn-gold"

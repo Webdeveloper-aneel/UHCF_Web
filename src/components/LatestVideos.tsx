@@ -1,25 +1,57 @@
-import { Play } from "lucide-react";
+import { Play, Loader } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { youtubeService } from "../services/youtube";
 
-const videos = [
-  {
-    id: "jvwF0xKYHrc",
-    title: "Sunday Worship Service",
-    description: "Join us for our weekly worship in Urdu and Hindi",
-  },
-  {
-    id: "3sHZO3eqXJw",
-    title: "Christmas Special Service",
-    description: "Celebrating the birth of our Lord Jesus Christ",
-  },
-  {
-    id: "p6qJKuqQ2xo",
-    title: "Bible Study Session",
-    description: "Exploring the Word of God together",
-  },
-];
+interface YouTubeVideo {
+  id: string;
+  title: string;
+  description: string;
+  thumbnail?: string;
+}
 
 const LatestVideos = () => {
+  const [videos, setVideos] = useState<YouTubeVideo[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        setLoading(true);
+        const fetchedVideos = await youtubeService.getLatestVideos(3);
+        setVideos(fetchedVideos);
+      } catch (error) {
+        console.error("Error fetching videos:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVideos();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="section-padding bg-card">
+        <div className="container-custom mx-auto">
+          <div className="text-center mb-16">
+            <span className="text-accent font-semibold uppercase tracking-wider text-sm">
+              Watch & Listen
+            </span>
+            <h2 className="section-title mt-4 mb-6">Latest Videos</h2>
+            <div className="gold-divider mb-6" />
+            <p className="section-subtitle mx-auto">
+              Catch up on our recent sermons and worship sessions
+            </p>
+          </div>
+          <div className="flex justify-center items-center py-12">
+            <Loader className="w-8 h-8 animate-spin text-accent" />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="section-padding bg-card">
       <div className="container-custom mx-auto">
@@ -43,9 +75,10 @@ const LatestVideos = () => {
             >
               <div className="relative aspect-video overflow-hidden">
                 <img
-                  src={`https://img.youtube.com/vi/${video.id}/maxresdefault.jpg`}
+                  src={video.thumbnail || `https://img.youtube.com/vi/${video.id}/maxresdefault.jpg`}
                   alt={video.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-primary/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                   <a

@@ -1,26 +1,59 @@
-import { Youtube, Play, Video, Headphones, Download, ExternalLink } from "lucide-react";
+import { Youtube, Play, Video, Headphones, ExternalLink, Loader } from "lucide-react";
+import { useState, useEffect } from "react";
+import { youtubeService } from "../services/youtube";
+
+interface YouTubeVideo {
+  id: string;
+  title: string;
+  description: string;
+  thumbnail?: string;
+  publishedAt?: string;
+}
 
 const MediaPage = () => {
-  const featuredVideos = [
-    {
-      title: "Sunday Worship Service",
-      description: "Latest worship service from UHCF",
-      embedId: "PLhcf5361", // Placeholder - replace with actual video IDs
-      category: "Worship",
-    },
-    {
-      title: "Bible Study Series",
-      description: "Deep dive into God's Word",
-      embedId: "PLhcf5362",
-      category: "Teaching",
-    },
-    {
-      title: "Special Easter Program",
-      description: "Celebrating the resurrection",
-      embedId: "PLhcf5363",
-      category: "Special Event",
-    },
-  ];
+  const [popularVideos, setPopularVideos] = useState<YouTubeVideo[]>([]);
+  const [recentVideos, setRecentVideos] = useState<YouTubeVideo[]>([]);
+  const [mainVideo, setMainVideo] = useState<YouTubeVideo | null>(null);
+  const [loadingPopular, setLoadingPopular] = useState(true);
+  const [loadingRecent, setLoadingRecent] = useState(true);
+
+  useEffect(() => {
+    fetchVideos();
+  }, []);
+
+  const fetchVideos = async () => {
+    try {
+      setLoadingRecent(true);
+      const recent = await youtubeService.getLatestVideos(1);
+      if (recent.length > 0) {
+        setMainVideo(recent[0]);
+      }
+    } catch (error) {
+      console.error("Error fetching latest video:", error);
+    } finally {
+      setLoadingRecent(false);
+    }
+
+    try {
+      setLoadingPopular(true);
+      const popular = await youtubeService.getPopularVideos(3);
+      setPopularVideos(popular);
+    } catch (error) {
+      console.error("Error fetching popular videos:", error);
+    } finally {
+      setLoadingPopular(false);
+    }
+
+    try {
+      setLoadingRecent(true);
+      const recent = await youtubeService.getLatestVideos(3);
+      setRecentVideos(recent);
+    } catch (error) {
+      console.error("Error fetching recent videos:", error);
+    } finally {
+      setLoadingRecent(false);
+    }
+  };
 
   const categories = [
     { name: "All Videos", count: 150 },
@@ -62,18 +95,30 @@ const MediaPage = () => {
             <div className="lg:col-span-2">
               <div className="bg-card rounded-3xl overflow-hidden shadow-card animate-scale-in">
                 <div className="aspect-video bg-foreground/5 relative">
-                  <iframe
-                    src="https://www.youtube.com/embed/videoseries?list=UU_uhcf5361"
-                    title="UHCF YouTube Channel"
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
+                  {loadingPopular ? (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Loader className="w-8 h-8 animate-spin text-accent" />
+                    </div>
+                  ) : mainVideo ? (
+                    <iframe
+                      src={`https://www.youtube.com/embed/${mainVideo.id}`}
+                      title={mainVideo.title}
+                      className="w-full h-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-muted">
+                      <span className="text-muted-foreground">Video not available</span>
+                    </div>
+                  )}
                 </div>
                 <div className="p-6">
-                  <h2 className="text-2xl font-heading font-bold mb-2">Latest from UHCF</h2>
+                  <h2 className="text-2xl font-heading font-bold mb-2">
+                    {mainVideo?.title || "Latest from UHCF"}
+                  </h2>
                   <p className="text-muted-foreground">
-                    Watch our most recent worship services, Bible studies, and special programs.
+                    {mainVideo?.description || "Watch our most recent worship services, Bible studies, and special programs."}
                   </p>
                 </div>
               </div>
@@ -138,32 +183,44 @@ const MediaPage = () => {
             <div className="gold-divider" />
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {featuredVideos.map((video, index) => (
-              <div
-                key={video.title}
-                className="group bg-background rounded-2xl overflow-hidden card-hover animate-fade-in"
-                style={{ animationDelay: `${index * 150}ms` }}
-              >
-                <div className="aspect-video bg-foreground/5 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-blue-dark/80 flex items-center justify-center">
-                    <div className="w-16 h-16 rounded-full bg-primary-foreground/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Play className="w-8 h-8 text-primary-foreground ml-1" />
+          {loadingPopular ? (
+            <div className="flex justify-center items-center py-12">
+              <Loader className="w-8 h-8 animate-spin text-accent" />
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-3 gap-8">
+              {popularVideos.map((video, index) => (
+                <a
+                  key={video.id}
+                  href={`https://www.youtube.com/watch?v=${video.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group bg-background rounded-2xl overflow-hidden card-hover animate-fade-in cursor-pointer block"
+                  style={{ animationDelay: `${index * 150}ms` }}
+                >
+                  <div className="aspect-video bg-foreground/5 relative overflow-hidden">
+                    <img
+                      src={video.thumbnail || `https://img.youtube.com/vi/${video.id}/maxresdefault.jpg`}
+                      alt={video.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-blue-dark/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-full bg-primary-foreground/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Play className="w-8 h-8 text-primary-foreground ml-1" />
+                      </div>
                     </div>
                   </div>
-                  <span className="absolute top-4 left-4 px-3 py-1 bg-accent text-foreground text-xs font-medium rounded-full">
-                    {video.category}
-                  </span>
-                </div>
-                <div className="p-6">
-                  <h3 className="text-lg font-heading font-semibold mb-2 group-hover:text-primary transition-colors">
-                    {video.title}
-                  </h3>
-                  <p className="text-muted-foreground text-sm">{video.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+                  <div className="p-6">
+                    <h3 className="text-lg font-heading font-semibold mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                      {video.title}
+                    </h3>
+                    <p className="text-muted-foreground text-sm line-clamp-2">{video.description}</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -216,27 +273,44 @@ const MediaPage = () => {
             </a>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((item, index) => (
-              <div
-                key={item}
-                className="group bg-background rounded-xl overflow-hidden card-hover animate-slide-up"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                <div className="aspect-video bg-gradient-to-br from-primary/60 to-blue-dark/60 relative">
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="w-12 h-12 rounded-full bg-primary-foreground/30 flex items-center justify-center">
-                      <Play className="w-6 h-6 text-primary-foreground ml-0.5" />
+          {loadingRecent ? (
+            <div className="flex justify-center items-center py-12">
+              <Loader className="w-8 h-8 animate-spin text-accent" />
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {recentVideos.map((video, index) => (
+                <a
+                  key={video.id}
+                  href={`https://www.youtube.com/watch?v=${video.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group bg-background rounded-xl overflow-hidden card-hover animate-slide-up block"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
+                  <div className="aspect-video bg-gradient-to-br from-primary/60 to-blue-dark/60 relative overflow-hidden">
+                    <img
+                      src={video.thumbnail || `https://img.youtube.com/vi/${video.id}/maxresdefault.jpg`}
+                      alt={video.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-primary/40">
+                      <div className="w-12 h-12 rounded-full bg-primary-foreground/30 flex items-center justify-center">
+                        <Play className="w-6 h-6 text-primary-foreground ml-0.5" />
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="p-4">
-                  <h4 className="font-medium text-sm truncate">Service Recording #{item}</h4>
-                  <p className="text-xs text-muted-foreground mt-1">Recent upload</p>
-                </div>
-              </div>
-            ))}
-          </div>
+                  <div className="p-4">
+                    <h4 className="font-medium text-sm truncate group-hover:text-primary transition-colors">{video.title}</h4>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {video.publishedAt ? new Date(video.publishedAt).toLocaleDateString() : "Recent"}
+                    </p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

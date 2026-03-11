@@ -282,7 +282,7 @@ const ContactPage = () => {
               <MapPin className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground">Espoo, Finland</p>
               <a
-                href="https://maps.google.com"
+                href="https://maps.app.goo.gl/qPNRDNtaUbo7Ttyn8"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary mt-4 inline-block"
